@@ -1,38 +1,40 @@
 version: 0.2
 
+env:
+  variables:
+    AWS_REGION: us-east-1
+    CLUSTER_NAME: eks-cluster
+    ECR_REPO_NAME: online-banking
+    IMAGE_TAG: latest
+
 phases:
   install:
     runtime-versions:
       java: corretto17
-      nodejs: 18
+      docker: 20
     commands:
-      - echo Installing dependencies...
-      - npm install -g @angular/cli
-      - cd frontend && npm install && cd ..
-
+      - echo Installing Maven...
+      - mvn --version
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 026090550003.dkr.ecr.$AWS_REGION.amazonaws.com
   pre_build:
     commands:
-      - echo Build phase started...
-
+      - echo Build started on `date`
+      - echo Compiling the application with Maven...
+      - mvn clean package -DskipTests
   build:
     commands:
-      - echo Building Angular app...
-      - cd frontend
-      - ng build --configuration production
-      - cd ..
-      - echo Building Spring Boot app...
-      - cd backend
-      - mvn clean package -DskipTests
-      - cd ..
-
+      - echo Building the Docker image...
+      - docker build -t $ECR_REPO_NAME:$IMAGE_TAG .
+      - docker tag $ECR_REPO_NAME:$IMAGE_TAG 026090550003.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG
   post_build:
     commands:
-      - echo Packaging frontend with backend...
-      - mkdir -p backend/src/main/resources/static
-      - cp -r frontend/dist/frontend/* backend/src/main/resources/static/
-      - echo Build and package completed.
-
+      - echo Pushing the Docker image to ECR...
+      - docker push 026090550003.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG
+      - echo Updating kubeconfig for EKS...
+      - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+      - echo Applying Kubernetes manifests...
+      - kubectl apply -f k8s/
 artifacts:
   files:
-    - backend/target/*.jar
-  discard-paths: yes
+    - target/online-banking-0.0.1-SNAPSHOT.jar
