@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: online-banking-deployment
+  labels:
+    app: online-banking
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: online-banking
+  template:
+    metadata:
+      labels:
+        app: online-banking
+    spec:
+      containers:
+        - name: online-banking-container
+          image: 026090550003.dkr.ecr.us-east-1.amazonaws.com/online-banking:latest
+          ports:
+            - containerPort: 8080
