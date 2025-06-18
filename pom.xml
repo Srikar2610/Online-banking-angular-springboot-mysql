@@ -102,6 +102,16 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+  <groupId>org.flywaydb</groupId>
+  <artifactId>flyway-maven-plugin</artifactId>
+  <version>11.7.2</version>
+  <configuration>
+    <url>jdbc:mysql://database-1.clceiq8g4r09.us-east-1.rds.amazonaws.com:3306/mydb</url>
+    <user>admin</user>
+    <password>adminSP12</password>
+  </configuration>
+        </plugin>
         </plugins>
     </build>
 
