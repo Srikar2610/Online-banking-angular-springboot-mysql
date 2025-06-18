@@ -11,12 +11,13 @@ phases:
       - echo Docker is ready.
 
       - echo Installing kubectl...
-      - curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.29.1/2024-05-03/bin/linux/amd64/kubectl
+      - curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.29.1/2024-04-12/bin/linux/amd64/kubectl
       - chmod +x kubectl
       - mv kubectl /usr/local/bin/
       - echo Verifying kubectl binary...
       - file /usr/local/bin/kubectl
       - /usr/local/bin/kubectl version --client
+
 
       - echo Logging into Amazon ECR...
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 026090550003.dkr.ecr.us-east-1.amazonaws.com
