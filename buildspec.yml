@@ -6,7 +6,7 @@ phases:
       java: corretto17
     commands:
       - echo Installing Docker...
-      - nohup /usr/local/bin/dockerd-entrypoint.sh &
+      - nohup /usr/local/bin/dockerd-entrypoint.sh &>/tmp/dockerd.log &
       - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
       - echo Docker is ready.
       - echo Logging into Amazon ECR...
