@@ -10,9 +10,10 @@ phases:
       - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
       - echo Docker is ready.
       - echo Installing kubectl...
-      - curl -LO https://s3.us-east-1.amazonaws.com/amazon-eks/1.29.0/2024-05-03/bin/linux/amd64/kubectl
+      - curl -LO https://amazon-eks.s3.us-west-2.amazonaws.com/1.29.0/2024-05-03/bin/linux/amd64/kubectl
       - chmod +x kubectl
       - mv kubectl /usr/local/bin/
+      - file /usr/local/bin/kubectl  
       - echo Logging into Amazon ECR...
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 026090550003.dkr.ecr.us-east-1.amazonaws.com
       - echo Setting up kubeconfig...
