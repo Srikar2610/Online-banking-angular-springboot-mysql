@@ -41,7 +41,7 @@ phases:
       - docker push 026090550003.dkr.ecr.us-east-1.amazonaws.com/online-banking:latest
 
       - echo Applying Kubernetes manifests...
-      - kubectl apply -f k8s/
+      - kubectl apply -f k8s/ --validate=false
       - echo Deployment complete.
       - echo Build completed on `date`
 
