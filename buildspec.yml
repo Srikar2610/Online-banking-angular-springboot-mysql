@@ -40,11 +40,13 @@ phases:
       - echo Pushing Docker image to Amazon ECR...
       - docker push 026090550003.dkr.ecr.us-east-1.amazonaws.com/online-banking:latest
 
-      - echo Applying Kubernetes manifests...
-      - echo Deployment complete.
-      - echo Build completed on `date`
+      - echo Preparing Kubernetes deployment files...
+      - mkdir -p k8s-out
+      - cp k8s/*.yaml k8s-out/
+
+      - echo Build and copy complete.
 
 artifacts:
+  base-directory: k8s-out
   files:
-    - target/online-banking-0.0.1-SNAPSHOT.jar
-    - k8s/**
+    - '*.yaml'
