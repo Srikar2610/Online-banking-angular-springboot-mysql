@@ -49,4 +49,6 @@ phases:
 artifacts:
   base-directory: k8s-out
   files:
-    - '*.yaml'
+    - deployment.yaml
+    - service.yaml
+    - namespace.yaml
