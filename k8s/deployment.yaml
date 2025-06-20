@@ -1,8 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: online-banking-deployment
-  namespace: online-banking
+  name: online-banking
   labels:
     app: online-banking
 spec:
@@ -16,7 +15,7 @@ spec:
         app: online-banking
     spec:
       containers:
-        - name: online-banking-container
+        - name: online-banking
           image: 026090550003.dkr.ecr.us-east-1.amazonaws.com/online-banking:latest
           ports:
             - containerPort: 8080
