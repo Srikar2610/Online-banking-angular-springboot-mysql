@@ -49,6 +49,8 @@ phases:
       - mkdir -p k8s-out
       - cp k8s/*.yaml k8s-out/
       - ls -l k8s-out
+      - echo Deploying to EKS cluster...
+      - kubectl apply -f k8s/
 
 artifacts:
   base-directory: k8s-out
