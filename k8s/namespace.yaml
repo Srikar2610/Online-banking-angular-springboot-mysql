@@ -1,4 +1,4 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: online-banking
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: online-banking
