@@ -4,6 +4,9 @@ env:
   variables:
     DB_USERNAME: admin
     DB_PASSWORD: adminSP12
+    CLUSTER_NAME: eks-cluster
+    AWS_REGION: us-east-1
+    AWS_ACCOUNT_ID: 026090550003
 
 phases:
   install:
@@ -12,11 +15,17 @@ phases:
     commands:
       - echo Installing envsubst...
       - yum install -y gettext
+      - echo Installing kubectl...
+      - curl -LO "https://dl.k8s.io/release/v1.29.0/bin/linux/amd64/kubectl"
+      - chmod +x kubectl
+      - mv kubectl /usr/local/bin/
+      - echo Installing AWS CLI...
+      - pip install --upgrade awscli
 
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
       - echo Fetching RDS endpoint...
       - export RDS_ENDPOINT=$(aws rds describe-db-instances --query "DBInstances[?DBName=='mydb'].Endpoint.Address" --output text --region $AWS_REGION)
       - echo RDS_ENDPOINT=$RDS_ENDPOINT
@@ -25,16 +34,23 @@ phases:
     commands:
       - echo Building Docker image...
       - docker build -t online-banking .
-      - docker tag online-banking:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/online-banking:latest
+      - docker tag online-banking:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest
 
   post_build:
     commands:
       - echo Pushing image to ECR...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/online-banking:latest
+      - docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest
+
       - echo Replacing placeholders in deployment template...
       - mkdir -p k8s
       - envsubst < k8s/deployment-template.yaml > k8s/deployment.yaml
       - envsubst < appspec-template.yaml > appspec.yaml
+
+      - echo Configuring kubectl with EKS...
+      - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+
+      - echo Applying Kubernetes manifests...
+      - kubectl apply -f k8s/deployment.yaml
 
 artifacts:
   files:
