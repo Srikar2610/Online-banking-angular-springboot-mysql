@@ -1,0 +1,9 @@
+version: 0.0
+Resources:
+  - myEKSApp:
+      Type: AWS::EKS::Manifest
+      Properties:
+        ClusterName: my-cluster       # or use environment variable if templating
+        RoleArn: arn:aws:iam::YOUR_ACCOUNT_ID:role/OnlineBankingDeployRole
+        KubernetesManifest:
+          - k8s/deployment.yaml
