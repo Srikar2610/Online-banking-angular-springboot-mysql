@@ -49,9 +49,18 @@ phases:
       - mkdir -p k8s-out
       - cp k8s/*.yaml k8s-out/
       - ls -l k8s-out
+
+      - echo Configuring access to EKS cluster...
+      - export KUBECONFIG=$HOME/.kube/config
+      - aws eks update-kubeconfig --region $REGION --name $EKS_CLUSTER_NAME
+
+      - echo Authenticating kubectl with EKS...
+      - export K8S_TOKEN=$(aws eks get-token --region $REGION --cluster-name $EKS_CLUSTER_NAME --output json | jq -r '.status.token')
+      - kubectl config set-credentials aws --token="$K8S_TOKEN"
+
       - echo Deploying to EKS cluster...
       - kubectl apply -f k8s/
-
+      
 artifacts:
   base-directory: k8s-out
   files:
