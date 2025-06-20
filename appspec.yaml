@@ -1,9 +1,10 @@
 version: 0.0
 Resources:
-  - myEKSApp:
+  - MyApplication:
       Type: AWS::EKS::Manifest
       Properties:
-        ClusterName: ${EKS_CLUSTER_NAME}
-        RoleArn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/OnlineBankingDeployRole
-        KubernetesManifest:
+        clusterName: ${CLUSTER_NAME}
+        manifest:
           - k8s/deployment.yaml
+          - k8s/service.yaml
+        roleArn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/<CodeBuildOrPipelineRole>
