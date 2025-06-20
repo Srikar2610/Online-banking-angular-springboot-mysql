@@ -17,7 +17,9 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-      - RDS_ENDPOINT=$(aws rds describe-db-instances --query "DBInstances[?DBName=='mydb'].Endpoint.Address" --output text --region $AWS_REGION)
+      - echo Fetching RDS endpoint...
+      - export RDS_ENDPOINT=$(aws rds describe-db-instances --query "DBInstances[?DBName=='mydb'].Endpoint.Address" --output text --region $AWS_REGION)
+      - echo RDS_ENDPOINT=$RDS_ENDPOINT
 
   build:
     commands:
@@ -32,7 +34,7 @@ phases:
       - echo Replacing placeholders in deployment template...
       - mkdir -p k8s
       - envsubst < k8s/deployment-template.yaml > k8s/deployment.yaml
-      - cp appspec.yaml .
+      - envsubst < appspec-template.yaml > appspec.yaml
 
 artifacts:
   files:
