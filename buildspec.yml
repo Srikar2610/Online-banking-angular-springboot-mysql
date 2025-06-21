@@ -4,7 +4,7 @@ env:
   variables:
     DB_USERNAME: admin
     DB_PASSWORD: adminSP12
-    CLUSTER_NAME: eks-cluster
+    CLUSTER_NAME: my-cluster
     AWS_REGION: us-east-1
     AWS_ACCOUNT_ID: 026090550003
 
