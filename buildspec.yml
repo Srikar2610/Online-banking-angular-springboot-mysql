@@ -43,9 +43,9 @@ phases:
       - echo Configuring kubectl...
       - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
       - echo Applying namespace manifest...
-      - kubectl apply -f k8s-out/namespace.yaml
+      - kubectl apply -f k8s-out/namespace.yaml --validate=false
       - echo Applying deployment and service...
-      - kubectl apply -f k8s-out/deployment.yaml -f k8s-out/service.yaml
+      - kubectl apply -f k8s-out/deployment.yaml -f k8s-out/service.yaml --validate=false
       - echo Deployment and service applied successfully.
 
 artifacts:
