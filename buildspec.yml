@@ -30,31 +30,31 @@ phases:
       - docker tag online-banking:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest
 
   post_build:
-  commands:
-    - docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest
-    - echo Preparing Kubernetes manifests...
-    - echo "Listing files in current directory:"
-    - ls -la
-    - echo "Listing files in k8s directory:"
-    - ls -la k8s/ # Add this to verify contents of k8s folder
-    - pwd
-    - mkdir -p k8s-out
-    - pwd
-    - sed "s|IMAGE_PLACEHOLDER|$IMAGE_URI|g" k8s/deployment.yaml > k8s-out/deployment.yaml
-    - pwd
-    - cp k8s/service.yaml k8s-out/service.yaml
-    - cp k8s/namespace.yaml k8s-out/namespace.yaml # Copy namespace.yaml to k8s-out
-    - echo Done preparing artifacts.
-    - echo "Configuring kubectl..."
-    - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+    commands:
+      - docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest
+      - echo Preparing Kubernetes manifests...
+      - echo "Listing files in current directory:"
+      - ls -la
+      - echo "Listing files in k8s directory:"
+      - ls -la k8s/ # Add this to verify contents of k8s folder
+      - pwd
+      - mkdir -p k8s-out
+      - pwd
+      - sed "s|IMAGE_PLACEHOLDER|$IMAGE_URI|g" k8s/deployment.yaml > k8s-out/deployment.yaml
+      - pwd
+      - cp k8s/service.yaml k8s-out/service.yaml
+      - cp k8s/namespace.yaml k8s-out/namespace.yaml # Copy namespace.yaml to k8s-out
+      - echo Done preparing artifacts.
+      - echo "Configuring kubectl..."
+      - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
 
-    - echo "Applying namespace manifest: k8s-out/namespace.yaml"
-    - kubectl apply -f k8s-out/namespace.yaml
-    - echo "Namespace 'online-banking' ensured."
+      - echo "Applying namespace manifest: k8s-out/namespace.yaml"
+      - kubectl apply -f k8s-out/namespace.yaml
+      - echo "Namespace 'online-banking' ensured."
 
-    - echo "Applying deployment and service manifests: k8s-out/deployment.yaml, k8s-out/service.yaml"
-    - kubectl apply -f k8s-out/deployment.yaml -f k8s-out/service.yaml
-    - echo "Deployment and service applied successfully."
+      - echo "Applying deployment and service manifests: k8s-out/deployment.yaml, k8s-out/service.yaml"
+      - kubectl apply -f k8s-out/deployment.yaml -f k8s-out/service.yaml
+      - echo "Deployment and service applied successfully."
 
 artifacts:
   base-directory: k8s-out
