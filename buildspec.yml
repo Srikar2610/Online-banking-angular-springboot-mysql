@@ -40,10 +40,14 @@ phases:
       - pwd
       - mkdir -p k8s-out
       - pwd
-      - sed "s|IMAGE_PLACEHOLDER|$IMAGE_URI|g" k8s/deployment.yaml > k8s-out/deployment.yaml # <-- CHANGED
+      - sed "s|IMAGE_PLACEHOLDER|$IMAGE_URI|g" k8s/deployment.yaml > k8s-out/deployment.yaml 
       - pwd
-      - cp k8s/service.yaml k8s-out/service.yaml # <-- CHANGED
+      - cp k8s/service.yaml k8s-out/service.yaml 
       - echo Done preparing artifacts.
+      - echo "Configuring kubectl and creating namespace..."
+      - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+      - kubectl get namespace online-banking || kubectl create namespace online-banking
+      - echo "Namespace 'online-banking' ensured."
 
 artifacts:
   base-directory: k8s-out
