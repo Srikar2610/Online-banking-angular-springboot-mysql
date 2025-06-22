@@ -31,14 +31,19 @@ phases:
   post_build:
     commands:
       - docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest
-      - envsubst < k8s/deployment.yaml > k8s/deployment-processed.yaml
-      - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-      # - kubectl get namespace online-banking || kubectl create namespace online-banking
-      - kubectl apply -f k8s/deployment-processed.yaml -n online-banking --validate=false
-      - kubectl apply -f k8s/service.yaml -n online-banking
-      - kubectl rollout status deployment/online-banking -n online-banking
-      - kubectl get service online-banking-service -n online-banking -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' || kubectl get service online-banking-service -n online-banking -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+      - echo Preparing Kubernetes manifests...
+      - echo "Listing files:"
+      - ls -la
+      - pwd
+      - mkdir -p k8s-out
+      - pwd
+      - sed "s|IMAGE_PLACEHOLDER|$IMAGE_URI|g" deployment.yaml > k8s-out/deployment.yaml
+      - pwd
+      - cp service.yaml k8s-out/service.yaml
+      - echo Done preparing artifacts.
 
 artifacts:
+  base-directory: k8s-out
   files:
-    - k8s/deployment-processed.yaml
+    - deployment.yaml
+    - service.yaml
