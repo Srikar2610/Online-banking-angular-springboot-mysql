@@ -33,7 +33,7 @@ phases:
       - docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest
       - envsubst < k8s/deployment.yaml > k8s/deployment-processed.yaml
       - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-      - kubectl get namespace online-banking || kubectl create namespace online-banking
+      # - kubectl get namespace online-banking || kubectl create namespace online-banking
       - kubectl apply -f k8s/deployment-processed.yaml -n online-banking --validate=false
       - kubectl apply -f k8s/service.yaml -n online-banking
       - kubectl rollout status deployment/online-banking -n online-banking
