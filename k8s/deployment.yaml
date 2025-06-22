@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: online-banking
+  labels:
+    app: online-banking
 spec:
   replicas: 2
   selector:
@@ -24,3 +26,22 @@ spec:
               value: ${DB_USERNAME}
             - name: SPRING_DATASOURCE_PASSWORD
               value: ${DB_PASSWORD}
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1024Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 5
