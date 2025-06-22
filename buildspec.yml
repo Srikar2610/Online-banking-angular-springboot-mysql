@@ -46,7 +46,7 @@ phases:
       - echo Done preparing artifacts.
       - echo "Configuring kubectl and creating namespace..."
       - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-      - kubectl get namespace online-banking || kubectl create namespace online-banking
+      # - kubectl get namespace online-banking || kubectl create namespace online-banking
       - echo "Namespace 'online-banking' ensured."
 
 artifacts:
