@@ -7,68 +7,38 @@ env:
     CLUSTER_NAME: my-cluster
     AWS_REGION: us-east-1
     AWS_ACCOUNT_ID: 026090550003
-    SONAR_HOST_URL: http://<your-sonarqube-server>:9000
-    SONAR_TOKEN: <your-sonarqube-token>  # Store in CodeBuild environment variables or AWS Secrets Manager
 
 phases:
   install:
     commands:
-      - echo Installing dependencies...
       - apt-get update -y
       - apt-get install -y gettext unzip curl
-      - echo Installing kubectl...
       - curl -LO "https://dl.k8s.io/release/v1.29.0/bin/linux/amd64/kubectl"
       - chmod +x kubectl && mv kubectl /usr/local/bin/
-      - echo Installing AWS CLI...
       - pip install --upgrade awscli
-      - echo Installing SonarScanner...
-      - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-      - unzip sonar-scanner-cli-*.zip
-      - mv sonar-scanner-* sonar-scanner
-      - export PATH=$PATH:$(pwd)/sonar-scanner/bin
 
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-
-      - echo Fetching RDS endpoint...
       - export RDS_ENDPOINT=$(aws rds describe-db-instances --query "DBInstances[?DBName=='mydb'].Endpoint.Address" --output text --region $AWS_REGION)
-      - echo RDS_ENDPOINT=$RDS_ENDPOINT
-      - export RDS_ENDPOINT=$RDS_ENDPOINT
-
-      - echo Running SonarQube analysis...
-      - sonar-scanner \
-          -Dsonar.projectKey=online-banking \
-          -Dsonar.sources=. \
-          -Dsonar.host.url=$SONAR_HOST_URL \
-          -Dsonar.login=$SONAR_TOKEN
+      - echo "RDS_ENDPOINT=$RDS_ENDPOINT"
 
   build:
     commands:
-      - echo Building Docker image...
       - docker build -t online-banking .
       - docker tag online-banking:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest
 
   post_build:
     commands:
-      - echo Pushing image to ECR...
       - docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest
-
-      - echo Replacing placeholders in k8s/deployment.yaml if any...
       - envsubst < k8s/deployment.yaml > k8s/deployment-processed.yaml
-
-      - echo Replacing placeholders in appspec.yaml if any...
-      - envsubst < appspec.yaml > appspec-processed.yaml
-
-      - echo Configuring kubectl with EKS...
       - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-
-      - echo Applying Kubernetes manifests...
-      # - kubectl apply -f k8s/deployment-processed.yaml --validate=false
-      # - kubectl apply -f k8s/service.yaml
+      - kubectl get namespace online-banking || kubectl create namespace online-banking
+      - kubectl apply -f k8s/deployment-processed.yaml -n online-banking --validate=false
+      - kubectl apply -f k8s/service.yaml -n online-banking
+      - kubectl rollout status deployment/online-banking -n online-banking
+      - kubectl get service online-banking-service -n online-banking -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' || kubectl get service online-banking-service -n online-banking -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
 
 artifacts:
   files:
-    - appspec-processed.yaml
     - k8s/deployment-processed.yaml
