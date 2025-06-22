@@ -22,6 +22,7 @@ phases:
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
       - export RDS_ENDPOINT=$(aws rds describe-db-instances --query "DBInstances[?DBName=='mydb'].Endpoint.Address" --output text --region $AWS_REGION)
       - echo "RDS_ENDPOINT=$RDS_ENDPOINT"
+      - export IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest" # Define IMAGE_URI here
 
   build:
     commands:
@@ -32,14 +33,16 @@ phases:
     commands:
       - docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest
       - echo Preparing Kubernetes manifests...
-      - echo "Listing files:"
+      - echo "Listing files in current directory:"
       - ls -la
+      - echo "Listing files in k8s directory:"
+      - ls -la k8s/ # Add this to verify contents of k8s folder
       - pwd
       - mkdir -p k8s-out
       - pwd
-      - sed "s|IMAGE_PLACEHOLDER|$IMAGE_URI|g" deployment.yaml > k8s-out/deployment.yaml
+      - sed "s|IMAGE_PLACEHOLDER|$IMAGE_URI|g" k8s/deployment.yaml > k8s-out/deployment.yaml # <-- CHANGED
       - pwd
-      - cp service.yaml k8s-out/service.yaml
+      - cp k8s/service.yaml k8s-out/service.yaml # <-- CHANGED
       - echo Done preparing artifacts.
 
 artifacts:
