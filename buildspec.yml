@@ -19,40 +19,34 @@ phases:
 
   pre_build:
     commands:
+      - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
       - export RDS_ENDPOINT=$(aws rds describe-db-instances --query "DBInstances[?DBName=='mydb'].Endpoint.Address" --output text --region $AWS_REGION)
       - echo "RDS_ENDPOINT=$RDS_ENDPOINT"
-      - export IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest" # Define IMAGE_URI here
+      - export IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest"
 
   build:
     commands:
+      - echo Building Docker image...
       - docker build -t online-banking .
-      - docker tag online-banking:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest
+      - docker tag online-banking:latest $IMAGE_URI
 
   post_build:
     commands:
-      - docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest
+      - echo Pushing Docker image to ECR...
+      - docker push $IMAGE_URI
       - echo Preparing Kubernetes manifests...
-      - echo "Listing files in current directory:"
-      - ls -la
-      - echo "Listing files in k8s directory:"
-      - ls -la k8s/ # Add this to verify contents of k8s folder
-      - pwd
       - mkdir -p k8s-out
-      - pwd
       - sed "s|IMAGE_PLACEHOLDER|$IMAGE_URI|g" k8s/deployment.yaml > k8s-out/deployment.yaml
-      - pwd
       - cp k8s/service.yaml k8s-out/service.yaml
-      - cp k8s/namespace.yaml k8s-out/namespace.yaml # Copy namespace.yaml to k8s-out
-      - echo Done preparing artifacts.
-      - echo "Configuring kubectl..."
+      - cp k8s/namespace.yaml k8s-out/namespace.yaml
+      - echo Configuring kubectl...
       - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-      - echo "Applying namespace manifest: k8s-out/namespace.yaml"
+      - echo Applying namespace manifest...
       - kubectl apply -f k8s-out/namespace.yaml
-      - echo "Namespace 'online-banking' ensured."
-      - echo "Applying deployment and service manifests: k8s-out/deployment.yaml, k8s-out/service.yaml"
+      - echo Applying deployment and service...
       - kubectl apply -f k8s-out/deployment.yaml -f k8s-out/service.yaml
-      - echo "Deployment and service applied successfully."
+      - echo Deployment and service applied successfully.
 
 artifacts:
   base-directory: k8s-out
