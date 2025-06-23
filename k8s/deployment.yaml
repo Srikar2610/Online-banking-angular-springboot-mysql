@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: online-banking
-          image: 026090550003.dkr.ecr.us-east-1.amazonaws.com/online-banking:latest
+          image: IMAGE_PLACEHOLDER
           ports:
             - containerPort: 8080
           env:
