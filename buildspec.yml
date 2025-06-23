@@ -14,14 +14,10 @@ phases:
     commands:
       - echo Installing dependencies...
       - yum update -y
-      - yum install -y unzip wget curl python3-pip gnupg tar
+      - yum install -y unzip wget python3-pip gnupg tar
       - pip3 install --upgrade awscli
-
-      # Install kubectl
       - curl -LO "https://dl.k8s.io/release/v1.29.0/bin/linux/amd64/kubectl"
       - chmod +x kubectl && mv kubectl /usr/local/bin/
-
-      # Install Trivy (static binary)
       - echo Installing Trivy...
       - wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.2_Linux-64bit.tar.gz
       - tar zxvf trivy_0.50.2_Linux-64bit.tar.gz
@@ -31,11 +27,8 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-
-      # Get RDS endpoint
       - export RDS_ENDPOINT=$(aws rds describe-db-instances --query "DBInstances[?DBName=='mydb'].Endpoint.Address" --output text --region $AWS_REGION)
       - echo "RDS_ENDPOINT=$RDS_ENDPOINT"
-
       - export IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:latest"
 
   build:
@@ -43,7 +36,6 @@ phases:
       - echo Building Docker image...
       - docker build -t $IMAGE_NAME .
       - docker tag $IMAGE_NAME:latest $IMAGE_URI
-
       - echo Scanning image with Trivy...
       - mkdir -p trivy-reports
       - trivy image --severity HIGH,CRITICAL --exit-code 0 --format table -o trivy-reports/report.txt $IMAGE_NAME:latest || true
@@ -52,12 +44,10 @@ phases:
     commands:
       - echo Pushing Docker image to ECR...
       - docker push $IMAGE_URI
-
       - echo Preparing Kubernetes manifests...
       - mkdir -p k8s-out
       - sed "s|IMAGE_PLACEHOLDER|$IMAGE_URI|g" k8s/deployment.yaml > k8s-out/deployment.yaml
       - cp k8s/service.yaml k8s-out/service.yaml
-
       - echo Build and Scan Complete
 
 artifacts:
