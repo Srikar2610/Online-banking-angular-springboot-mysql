@@ -7,46 +7,60 @@ env:
     CLUSTER_NAME: my-cluster
     AWS_REGION: us-east-1
     AWS_ACCOUNT_ID: 026090550003
+    IMAGE_NAME: online-banking
 
 phases:
   install:
     commands:
+      - echo Installing dependencies...
       - yum update -y
-      - yum install -y gettext unzip
+      - yum install -y gettext unzip wget
       - curl -LO "https://dl.k8s.io/release/v1.29.0/bin/linux/amd64/kubectl"
       - chmod +x kubectl && mv kubectl /usr/local/bin/
       - pip install --upgrade awscli
+
       # Install Trivy
-      - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+      - echo Installing Trivy...
+      - wget -q https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.2_Linux-64bit.tar.gz
+      - tar zxvf trivy_0.50.2_Linux-64bit.tar.gz
+      - mv trivy /usr/local/bin/
 
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+
+      # Get RDS endpoint
       - export RDS_ENDPOINT=$(aws rds describe-db-instances --query "DBInstances[?DBName=='mydb'].Endpoint.Address" --output text --region $AWS_REGION)
       - echo "RDS_ENDPOINT=$RDS_ENDPOINT"
-      - export IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest"
+
+      - export IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:latest"
 
   build:
     commands:
       - echo Building Docker image...
-      - docker build -t online-banking .
-      - docker tag online-banking:latest $IMAGE_URI
+      - docker build -t $IMAGE_NAME .
+      - docker tag $IMAGE_NAME:latest $IMAGE_URI
+
       - echo Scanning image with Trivy...
-      - trivy image --severity HIGH,CRITICAL --exit-code 1 online-banking || echo "Trivy found vulnerabilities, review the report above."
+      - mkdir -p trivy-reports
+      - trivy image --severity HIGH,CRITICAL --exit-code 0 --format table -o trivy-reports/report.txt $IMAGE_NAME:latest || true
 
   post_build:
     commands:
       - echo Pushing Docker image to ECR...
       - docker push $IMAGE_URI
+
       - echo Preparing Kubernetes manifests...
       - mkdir -p k8s-out
       - sed "s|IMAGE_PLACEHOLDER|$IMAGE_URI|g" k8s/deployment.yaml > k8s-out/deployment.yaml
       - cp k8s/service.yaml k8s-out/service.yaml
-      - echo Done preparing Artifacts
+
+      - echo Build and Scan Complete
 
 artifacts:
-  base-directory: k8s-out
+  base-directory: .
   files:
-    - deployment.yaml
-    - service.yaml
+    - k8s-out/deployment.yaml
+    - k8s-out/service.yaml
+    - trivy-reports/report.txt
