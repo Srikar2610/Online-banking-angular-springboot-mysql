@@ -12,12 +12,12 @@ phases:
   install:
     commands:
       - yum update -y
-      # Removed 'curl' from the yum install command as it's likely pre-installed
       - yum install -y gettext unzip
-      # kubectl installation - curl command here should still work
       - curl -LO "https://dl.k8s.io/release/v1.29.0/bin/linux/amd64/kubectl"
       - chmod +x kubectl && mv kubectl /usr/local/bin/
       - pip install --upgrade awscli
+      # Install Trivy
+      - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
 
   pre_build:
     commands:
@@ -32,6 +32,8 @@ phases:
       - echo Building Docker image...
       - docker build -t online-banking .
       - docker tag online-banking:latest $IMAGE_URI
+      - echo Scanning image with Trivy...
+      - trivy image --severity HIGH,CRITICAL --exit-code 1 online-banking || echo "Trivy found vulnerabilities, review the report above."
 
   post_build:
     commands:
@@ -48,4 +50,3 @@ artifacts:
   files:
     - deployment.yaml
     - service.yaml
-    
