@@ -50,7 +50,7 @@ phases:
       - echo Build and Scan Complete
 
 artifacts:
-  base-directory: .
+  base-directory: 
   files:
     - k8s-out/deployment.yaml
     - k8s-out/service.yaml
