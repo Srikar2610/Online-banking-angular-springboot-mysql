@@ -21,7 +21,7 @@ spec:
             - containerPort: 8080
           env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://your-rds-endpoint.amazonaws.com:3306/OnlineBankingDB
+              value: jdbc:mysql://onlinebankingstack-rdsinstance-yqwzoma6hm0r.clceiq8g4r09.us-east-1.rds.amazonaws.com:3306/mydb
             - name: SPRING_DATASOURCE_USERNAME
               value: admin
             - name: SPRING_DATASOURCE_PASSWORD
