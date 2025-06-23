@@ -13,23 +13,21 @@ phases:
   install:
     commands:
       - echo Installing dependencies...
-      - apt-get update -y
-      - apt-get install -y unzip wget curl gnupg lsb-release ca-certificates
+      - yum update -y
+      - yum install -y unzip wget curl python3-pip
 
       # Install kubectl
       - curl -LO "https://dl.k8s.io/release/v1.29.0/bin/linux/amd64/kubectl"
       - chmod +x kubectl && mv kubectl /usr/local/bin/
 
-      # Install pip & AWS CLI
-      - apt-get install -y python3-pip
+      # Upgrade AWS CLI
       - pip3 install --upgrade awscli
 
-      # Install Trivy via APT
+      # Install Trivy (direct download method for Amazon Linux)
       - echo Installing Trivy...
-      - curl -fsSL https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor -o /usr/share/keyrings/trivy.gpg
-      - echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb stable main" | tee /etc/apt/sources.list.d/trivy.list
-      - apt-get update -y
-      - apt-get install -y trivy
+      - wget https://github.com/aquasecurity/trivy/releases/download/v0.50.2/trivy_0.50.2_Linux-64bit.tar.gz
+      - tar zxvf trivy_0.50.2_Linux-64bit.tar.gz
+      - mv trivy /usr/local/bin/
 
   pre_build:
     commands:
