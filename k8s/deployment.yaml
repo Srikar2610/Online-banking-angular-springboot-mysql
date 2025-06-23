@@ -16,16 +16,16 @@ spec:
     spec:
       containers:
         - name: online-banking
-          image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/online-banking:latest
+          image: 026090550003.dkr.ecr.us-east-1.amazonaws.com/online-banking:latest
           ports:
             - containerPort: 8080
           env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://${RDS_ENDPOINT}:3306/mydb
+              value: jdbc:mysql://your-rds-endpoint.amazonaws.com:3306/OnlineBankingDB
             - name: SPRING_DATASOURCE_USERNAME
-              value: ${DB_USERNAME}
+              value: admin
             - name: SPRING_DATASOURCE_PASSWORD
-              value: ${DB_PASSWORD}
+              value: adminSP12
           resources:
             requests:
               memory: "512Mi"
