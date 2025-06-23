@@ -41,7 +41,6 @@ phases:
       - mkdir -p k8s-out
       - sed "s|IMAGE_PLACEHOLDER|$IMAGE_URI|g" k8s/deployment.yaml > k8s-out/deployment.yaml
       - cp k8s/service.yaml k8s-out/service.yaml
-      - cp k8s/namespace.yaml k8s-out/namespace.yaml
       - echo Done preparing Artifacts
 
 artifacts:
@@ -49,4 +48,4 @@ artifacts:
   files:
     - deployment.yaml
     - service.yaml
-    - namespace.yaml
+    
