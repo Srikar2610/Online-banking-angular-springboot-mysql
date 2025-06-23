@@ -11,9 +11,9 @@ env:
 phases:
   install:
     commands:
-      - apt update -y
+      - yum update -y
       # Removed 'curl' from the yum install command as it's likely pre-installed
-      - apt install -y gettext unzip
+      - yum install -y gettext unzip
       # kubectl installation - curl command here should still work
       - curl -LO "https://dl.k8s.io/release/v1.29.0/bin/linux/amd64/kubectl"
       - chmod +x kubectl && mv kubectl /usr/local/bin/
