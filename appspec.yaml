@@ -1,10 +1,10 @@
-version: 0.0
-Resources:
-  - MyApplication:
-      Type: AWS::EKS::Manifest
-      Properties:
-        clusterName: ${CLUSTER_NAME}
-        manifest:
-          - k8s/deployment.yaml
-          - k8s/service.yaml
-        roleArn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/<CodeBuildOrPipelineRole>
+# version: 0.0
+# Resources:
+#   - MyApplication:
+#       Type: AWS::EKS::Manifest
+#       Properties:
+#         clusterName: ${CLUSTER_NAME}
+#         manifest:
+#           - k8s/deployment.yaml
+#           - k8s/service.yaml
+#         roleArn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/<CodeBuildOrPipelineRole>
