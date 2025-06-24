@@ -1,5 +1,5 @@
 version: 0.2
- 
+
 env:
   variables:
     DB_USERNAME: admin
@@ -8,7 +8,7 @@ env:
     AWS_REGION: us-east-1
     AWS_ACCOUNT_ID: 026090550003
     IMAGE_NAME: online-banking
- 
+
 phases:
   install:
     commands:
@@ -21,7 +21,7 @@ phases:
       - echo Installing Trivy...
       - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
       - echo "Trivy installed successfully."
- 
+
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
@@ -29,20 +29,18 @@ phases:
       - export RDS_ENDPOINT=$(aws rds describe-db-instances --query "DBInstances[?DBName=='mydb'].Endpoint.Address" --output text --region $AWS_REGION)
       - echo "RDS_ENDPOINT=$RDS_ENDPOINT"
       - export IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:latest"
- 
+
   build:
     commands:
       - echo Building Docker image...
       - docker build -t $IMAGE_NAME .
       - docker tag $IMAGE_NAME:latest $IMAGE_URI
-
       - echo Running SonarQube analysis...
       - mvn clean verify sonar:sonar -Dsonar.projectKey=Banking_project -Dsonar.host.url=http://44.201.251.160 -Dsonar.login=sqp_633f2e3604f9b388947efd00171621b0f326b389
-
       - echo Scanning image with Trivy...
       - mkdir -p trivy-reports
       - trivy image --severity HIGH,CRITICAL --exit-code 0 --format table -o trivy-reports/report.txt $IMAGE_NAME:latest || true
- 
+
   post_build:
     commands:
       - echo Pushing Docker image to ECR...
@@ -60,11 +58,10 @@ phases:
       - kubectl get pods -o wide || true
       - echo Deployment Info:
       - kubectl describe deployment ${IMAGE_NAME} || true
-      - echo Logs:            
+      - echo Logs:
       - for pod in $(kubectl get pods -l app=${IMAGE_NAME} -o name); do echo "--- Logs for $pod ---"; kubectl logs $pod || true; done
 
- 
-artifacts: 
+artifacts:
   files:
     - k8s-out/deployment.yaml
     - k8s-out/service.yaml
