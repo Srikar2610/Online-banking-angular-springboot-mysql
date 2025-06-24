@@ -38,6 +38,7 @@ phases:
 
       - echo Running SonarQube analysis...
       - mvn clean verify sonar:sonar -Dsonar.projectKey=Banking_project -Dsonar.host.url=http://44.201.251.160 -Dsonar.login=sqp_633f2e3604f9b388947efd00171621b0f326b389
+
       - echo Scanning image with Trivy...
       - mkdir -p trivy-reports
       - trivy image --severity HIGH,CRITICAL --exit-code 0 --format table -o trivy-reports/report.txt $IMAGE_NAME:latest || true
@@ -50,7 +51,21 @@ phases:
       - mkdir -p k8s-out
       - sed "s|IMAGE_PLACEHOLDER|$IMAGE_URI|g" k8s/deployment.yaml > k8s-out/deployment.yaml
       - cp k8s/service.yaml k8s-out/service.yaml
-      - echo Build and Scan Complete
+      - echo Updating kubeconfig for EKS...
+      - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+      - echo Applying Kubernetes manifests to EKS...
+      - kubectl apply -f k8s-out/deployment.yaml -f k8s-out/service.yaml
+      - echo Skipping rollout status check to avoid CodePipeline timeout
+      - echo Pods:
+      - kubectl get pods -o wide || true
+      - echo Deployment Info:
+      - kubectl describe deployment ${IMAGE_NAME} || true
+      - echo Logs:
+      - >
+        for pod in $(kubectl get pods -l app=${IMAGE_NAME} -o name); do
+          echo "--- Logs for $pod ---"
+          kubectl logs $pod || true
+        done
  
 artifacts: 
   files:
