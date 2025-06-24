@@ -33,4 +33,40 @@ phases:
   build:
     commands:
       - echo Building Docker image...
-      - doc
+      - docker build -t $IMAGE_NAME .
+      - docker tag $IMAGE_NAME:latest $IMAGE_URI
+      - echo Scanning image with Trivy...
+      - mkdir -p trivy-reports
+      - trivy image --severity HIGH,CRITICAL --exit-code 0 --format table -o trivy-reports/report.txt $IMAGE_NAME:latest || true
+
+  post_build:
+    commands:
+      - echo Pushing Docker image to ECR...
+      - docker push $IMAGE_URI
+      - echo Preparing Kubernetes manifests...
+      - mkdir -p k8s-out
+      - sed "s|IMAGE_PLACEHOLDER|$IMAGE_URI|g" k8s/deployment.yaml > k8s-out/deployment.yaml
+      - cp k8s/service.yaml k8s-out/service.yaml
+      - echo Updating kubeconfig for EKS...
+      - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+      - echo Applying Kubernetes manifests...
+      - kubectl apply -f k8s-out/deployment.yaml -f k8s-out/service.yaml
+      - echo Checking rollout status...
+      - kubectl rollout status deployment/${IMAGE_NAME} || true
+      - echo Pods:
+      - kubectl get pods -o wide
+      - echo Describing Deployment:
+      - kubectl describe deployment ${IMAGE_NAME} || true
+      - echo Logs from pods:
+      - |
+        for pod in $(kubectl get pods -l app=${IMAGE_NAME} -o name); do
+          echo "--- Logs for $pod ---"
+          kubectl logs $pod || true
+        done
+
+artifacts:
+  files:
+    - k8s-out/deployment.yaml
+    - k8s-out/service.yaml
+    - trivy-reports/report.txt
+  discard-paths: yes
