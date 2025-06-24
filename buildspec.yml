@@ -49,9 +49,9 @@ phases:
       - cp k8s/service.yaml k8s-out/service.yaml
       - echo Build and Scan Complete
 
-artifacts:
-  base-directory: 
+artifacts: 
   files:
     - k8s-out/deployment.yaml
     - k8s-out/service.yaml
     - trivy-reports/report.txt
+  discard-paths: yes
