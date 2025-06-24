@@ -33,25 +33,4 @@ phases:
   build:
     commands:
       - echo Building Docker image...
-      - docker build -t $IMAGE_NAME .
-      - docker tag $IMAGE_NAME:latest $IMAGE_URI
-      - echo Scanning image with Trivy...
-      - mkdir -p trivy-reports
-      - trivy image --severity HIGH,CRITICAL --exit-code 0 --format table -o trivy-reports/report.txt $IMAGE_NAME:latest || true
-
-  post_build:
-    commands:
-      - echo Pushing Docker image to ECR...
-      - docker push $IMAGE_URI
-      - echo Preparing Kubernetes manifests...
-      - mkdir -p k8s-out
-      - sed "s|IMAGE_PLACEHOLDER|$IMAGE_URI|g" k8s/deployment.yaml > k8s-out/deployment.yaml
-      - cp k8s/service.yaml k8s-out/service.yaml
-      - echo Build and Scan Complete
-
-artifacts: 
-  files:
-    - k8s-out/deployment.yaml
-    - k8s-out/service.yaml
-    - trivy-reports/report.txt
-  discard-paths: yes
+      - doc
