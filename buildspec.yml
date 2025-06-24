@@ -60,12 +60,9 @@ phases:
       - kubectl get pods -o wide || true
       - echo Deployment Info:
       - kubectl describe deployment ${IMAGE_NAME} || true
-      - echo Logs:
-      - >
-        for pod in $(kubectl get pods -l app=${IMAGE_NAME} -o name); do
-          echo "--- Logs for $pod ---"
-          kubectl logs $pod || true
-        done
+      - echo Logs:            
+      - for pod in $(kubectl get pods -l app=${IMAGE_NAME} -o name); do echo "--- Logs for $pod ---"; kubectl logs $pod || true; done
+
  
 artifacts: 
   files:
