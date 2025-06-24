@@ -12,7 +12,7 @@ There are two roles user and admin.
 
 __Clone the repository__
 ```
-git clone https://github.com/hendisantika/Online-banking-angular-springboot-mysql 
+git clone https:(https://github.com/Srikar2610/Online-banking-angular-springboot-mysql)
 ```
 
 __Go the folder__
