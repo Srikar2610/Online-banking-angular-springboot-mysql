@@ -12,7 +12,7 @@ INSERT INTO role (role_id, name) VALUES (2, 'ROLE_ADMIN');
 INSERT INTO user (user_id, email, enabled, first_name, last_name, password, phone, username, primary_account_id, savings_account_id)
 VALUES (1, 'uzumaki_naruto@konohagakure.co.jp', TRUE, 'Uzumaki', 'Naruto',
         '$2a$12$DWCryEwHwbTYCegib92tk.VST.GG1i2WAqfaSwyMdxX0cl0eBeSve', '5551112345', 'UzumakiNaruto', 1, 1),
-       (2, 'uchiha_sasuke@konohagakure.co.jp', TRUE, 'Uchiha', 'Sasuke',
+       (2, 'srikar@gmail.com', TRUE, 'Srikar', 'Padakanti',
         '$2a$12$hZR7pcSf0JU/OTXR3TOyuu8r6C6n.JZE8Ei47E4LZs1t0Aq1AO6oC',
         '1111111111', 'UchihaSasuke', 2, 2);
 
