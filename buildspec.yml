@@ -2,7 +2,7 @@ version: 0.2
 env:
   variables:
     DB_USERNAME: admin
-    DB_PASSWORD: adminSP12
+    DB_PASSWORD: Admin123
     CLUSTER_NAME: my-cluster
     AWS_REGION: us-east-1
     AWS_ACCOUNT_ID: 026090550003
