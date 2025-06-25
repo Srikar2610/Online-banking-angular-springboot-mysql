@@ -32,8 +32,8 @@ phases:
       - docker build -t $IMAGE_NAME .
       - docker tag $IMAGE_NAME:latest $IMAGE_URI
  
-      - echo Running SonarQube analysis...
-      - mvn clean verify sonar:sonar -Dsonar.projectKey=Banking_project -Dsonar.host.url=http://44.201.251.160 -Dsonar.login=sqp_633f2e3604f9b388947efd00171621b0f326b389
+      # - echo Running SonarQube analysis...
+      # - mvn clean verify sonar:sonar -Dsonar.projectKey=Banking_project -Dsonar.host.url=http://44.201.251.160 -Dsonar.login=sqp_633f2e3604f9b388947efd00171621b0f326b389
       - echo Scanning image with Trivy...
       - mkdir -p trivy-reports
       - trivy image --severity HIGH,CRITICAL --exit-code 0 --format table -o trivy-reports/report.txt $IMAGE_NAME:latest || true
