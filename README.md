@@ -52,7 +52,10 @@ mvn clean spring-boot:run
 ![Dashboard page](img/dashboard2.png "Dashboard Page")
 
 AWS Cloud-Native Online Banking Application
-This repository contains the infrastructure as code (IaC), CI/CD pipelines, and application code for a scalable and secure Online Banking Application deployed on Amazon Web Services (AWS).
+Online-Bank-Simulator
+A Cloud-Native Deployment for Scalable & Secure Financial Services using AWS with PHP, Flask/Python, Spring Boot, Spring Data, Spring Security, Hibernate, MySQL, and RESTful APIs.
+
+The project simulates an online banking system that allows users to register/login, deposit/withdraw money from accounts, add/edit recipients, transfer money between accounts and recipients, and view transactions. It also includes functionality for making appointments. The system supports two distinct roles: user and admin, providing different levels of access and functionality.
 
 🚀 Features
 This project showcases a comprehensive cloud-native deployment with the following key features:
@@ -61,7 +64,7 @@ Multi-Tier Application:
 
 Frontend: Angular
 
-Backend: SpringBoot
+Backend: A SpringBoot application deployed on Amazon EKS.
 
 Database: Amazon RDS for MySQL with Multi-AZ deployment for high availability and automated failover.
 
@@ -159,6 +162,8 @@ The CI/CD pipeline automates the journey of your application code from GitHub to
              ▲                                            │                         │
              └──────────────────[Triggered on push]───────┴─────────[Rolling updates / hooks]
 
+
+
 Workflow Breakdown:
 
 Source Stage (GitHub):
@@ -225,6 +230,8 @@ Clone Repository:
 
 git clone https://github.com/PavanThumati/AWS_CapStone_Final_Project.git
 cd AWS_CapStone_Final_Project
+
+
 
 Region A (Primary) Deployment (us-east-1):
 
@@ -320,3 +327,4 @@ Make your changes and ensure your code adheres to existing coding standards.
 Write clear and concise commit messages.
 
 Submit a pull request with a detailed description of your changes.
+
